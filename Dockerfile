@@ -1,5 +1,5 @@
 # Bước 1: Sử dụng image Go chính thức
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 # Thiết lập thư mục làm việc trong container
 WORKDIR /app
