@@ -1,0 +1,42 @@
+name: Go Docker App CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.20'
+
+    - name: Cache Go modules
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/go/cache
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Build Go app
+      run: go build -o main .
+
+    - name: Build Docker image
+      run: |
+        docker build -t go-docker-app .
+
+    - name: Run Docker container
+      run: |
+        docker run -d -p 8080:8080 go-docker-app
