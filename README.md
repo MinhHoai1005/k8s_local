@@ -67,3 +67,13 @@ Kiểm tra lại trạng thái của pod và service bằng các lệnh kubectl 
 Sử dụng minikube service list để xác minh rằng service đã được tạo ra và có thể truy cập.
 Nếu có namespace khác, hãy chắc chắn rằng bạn sử dụng -n <namespace> khi truy cập.
 Sau khi kiểm tra và cấu hình lại các yếu tố trên, bạn sẽ có thể truy cập được service mà không gặp phải lỗi SVC_NOT_FOUND.
+
+
+Scale Up hoặc Scale Down Deployment
+  Scale Up (Tăng số lượng replicas):
+    kubectl scale deployment go-docker-app-deployment --replicas=5
+  Scale Down (Giảm số lượng replicas):
+    kubectl scale deployment go-docker-app-deployment --replicas=2
+
+Sử Dụng Horizontal Pod Autoscaler (Tự Động Scale Dựa Trên Tải)
+ kubectl autoscale deployment go-docker-app-deployment --cpu-percent=50 --min=2 --max=10
