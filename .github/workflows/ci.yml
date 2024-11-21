@@ -35,6 +35,18 @@ jobs:
         go test -v ./...  # Chạy tất cả unit tests
       continue-on-error: false  # Nếu test thất bại, dừng các bước tiếp theo
 
+    - name: Set up SonarQube Scanner
+      uses: sonarsource/sonarcloud-action@v2
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        sonar-host-url: ${{ secrets.SONAR_HOST_URL }}  # Địa chỉ SonarQube server hoặc SonarCloud
+      continue-on-error: false  # Nếu test thất bại, dừng các bước tiếp theo
+
+    - name: Run SonarQube analysis
+      run: |
+        sonar-scanner  # Chạy phân tích mã với SonarQube
+      continue-on-error: false  # Nếu test thất bại, dừng các bước tiếp theo
+
     - name: Build Go app
       run: go build -o main . # Build ứng dụng Go
 
