@@ -3,19 +3,19 @@ name: Go Docker App CI/CD
 on:
   push:
     branches:
-      - main
+      - main # Chỉ chạy khi có thay đổi trên nhánh main
   pull_request:
     branches:
-      - main
+      - main  # Chạy khi có pull request vào nhánh main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Chạy trên Ubuntu (hoặc chọn hệ điều hành khác nếu cần)
     steps:
-    - name: Checkout code
+    - name: Checkout code  # Kiểm tra mã nguồn
       uses: actions/checkout@v2
 
-    - name: Set up Go
+    - name: Set up Go # Hoặc phiên bản Go bạn đang dùng
       uses: actions/setup-go@v2
       with:
         go-version: '1.23'
@@ -30,20 +30,36 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
+    - name: Run Go tests
+      run: |
+        go test -v ./...  # Chạy tất cả unit tests
+      continue-on-error: false  # Nếu test thất bại, dừng các bước tiếp theo
+
     - name: Build Go app
-      run: go build -o main .
+      run: go build -o main . # Build ứng dụng Go
 
     - name: Build Docker image
       run: |
         docker build -t go-docker-app .
+      if: success()  # Chạy chỉ khi các bước trước thành công
 
     - name: Run Docker container
       run: |
         docker run -d -p 8080:8080 go-docker-app
+      if: success()  # Chạy chỉ khi các bước trước thành công
 
 # Gửi thông báo Telegram khi hoàn thành CI/CD
-    - name: Notify Telegram
+    - name: Notify Telegram success
       run: |
         curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
         -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
         -d text="CI/CD Build for Go Docker App completed successfully on branch main."
+      if: success()  # Chạy chỉ khi các bước trước thành công
+
+# Gửi thông báo Telegram khi có lỗi
+    - name: Notify Telegram on failure
+      if: failure()  # Chạy chỉ khi bước trước thất bại
+      run: |
+        curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+        -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+        -d text="CI/CD Build for Go Docker App failed on branch main."
